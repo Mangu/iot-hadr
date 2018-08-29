@@ -1,0 +1,14 @@
+{
+  "disabled": false,
+  "bindings": [
+    {
+      "type": "eventHubTrigger",
+      "name": "eventHubMessage",
+      "direction": "in",
+      "eventHubName": "deviceregistration",
+      "consumerGroup":"function",
+      "cardinality": "One",
+      "connection": "myEventHubReadConnectionAppSetting"
+    }   
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "disabled": false,
+  "bindings": [
+    {
+      "type": "eventHubTrigger",
+      "name": "eventHubMessage",
+      "direction": "in",
+      "eventHubName": "devicetwin",  
+      "cardinality": "many",
+      "connection": "myEventHubReadConnectionAppSetting"
+    }   
+  ]
+}
