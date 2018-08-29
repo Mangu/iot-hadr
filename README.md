@@ -1,5 +1,7 @@
 # IoT Hub Automatic Cross Region Failover
 
+>Note: This is a work in progress. I will remove this notice when it is ready to use. 
+
 This sample provides a reference implementation for achieving cross region high availability in IoT Hub as defined in the [IoT Hub high availability and disaster recovery](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-ha-dr) post.
 
 ## Features
