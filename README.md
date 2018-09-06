@@ -29,11 +29,12 @@ While we can use the UI to create these services, for this walkthrough we will b
 
 Login to the Azure portal and click on the CLI icon on the top bar. Type the following commands:
 
-1. `az group create --name {your resource group name} --location westus` 
-2. `az iot hub create --name {primaryiothubname} --resource-group {your resource group name} --sku S1`
-3. `az iot hub create --name {secondaryiothubname} --resource-group {your resource group name} --sku S1`
-4. `az iot hub show-connection-string --hub-name {primaryiothubname}`
-5. `az iot hub show-connection-string --hub-name {secondaryiothubname}`
+1. `az extension add --name azure-cli-iot-ext` 
+2. `az group create --name {your resource group name} --location westus` 
+3. `az iot hub create --name {primaryiothubname} --resource-group {your resource group name} --sku S1`
+4. `az iot hub create --name {secondaryiothubname} --resource-group {your resource group name} --sku S1`
+5. `az iot hub show-connection-string --hub-name {primaryiothubname}`
+6. `az iot hub show-connection-string --hub-name {secondaryiothubname}`
  
 Open any text editor and copy the connection string from steps 4 and 5 as "PrimaryIoTHubConnection" and "SecondaryIoTHubConnection" respectably. We will need it later.
 
@@ -41,9 +42,9 @@ Open any text editor and copy the connection string from steps 4 and 5 as "Prima
 
 Back on the Cloud Shell,the following commands will create a EventHubs namespace and two EventHub; One to capture registry events and one for device twin changes:
 1. `az eventhubs namespace create --name  {yournamespacename} --resource-group {your resource group name}`
-2. `az eventhubs eventhub create --name registry -namespace-name {yournamespacename } --resource-group  --{your resource group name}`
-3. `az eventhubs eventhub create --name devicetwin -namespace-name {yournamespacename } --resource-group  --{your resource group name}`
-4. `az eventhubs namespace authorization-rule keys list --name RootManageSharedAccessKey --{namespace-name} --{your resource group name}`
+2. `az eventhubs eventhub create --name registry --namespace-name {yournamespacename} --resource-group  {your resource group name}`
+3. `az eventhubs eventhub create --name devicetwin --namespace-name {yournamespacename} --resource-group  {your resource group name}`
+4. `az eventhubs namespace authorization-rule keys list --name RootManageSharedAccessKey --namespace-name {yournamespacename} --resource-group  {your resource group name}`
 
 The last command gets the connection string for the eventhubs namespace we just created. Take note of the `primaryConnectionString` as we will need it later.
 
