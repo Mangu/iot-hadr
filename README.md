@@ -36,7 +36,7 @@ Login to the Azure portal and click on the CLI icon on the top bar. Type the fol
 5. `az iot hub show-connection-string --hub-name {primaryiothubname}`
 6. `az iot hub show-connection-string --hub-name {secondaryiothubname}`
  
-Open any text editor and copy the connection string from steps 4 and 5 as "PrimaryIoTHubConnection" and "SecondaryIoTHubConnection" respectably. We will need it later.
+Open any text editor and copy the connection string from steps 4 and 5 as "PrimaryIoTHubConnection" and "SecondaryIoTHubConnection" respectably. We will need it later. Also, copy the value of the id property from step 3 as {primaryHubResourceId}
 
 #### Create Event Hubs
 
@@ -46,7 +46,7 @@ Back on the Cloud Shell,the following commands will create a EventHubs namespace
 3. `az eventhubs eventhub create --name devicetwin --namespace-name {yournamespacename} --resource-group  {your resource group name}`
 4. `az eventhubs namespace authorization-rule keys list --name RootManageSharedAccessKey --namespace-name {yournamespacename} --resource-group  {your resource group name}`
 
-The last command gets the connection string for the eventhubs namespace we just created. Take note of the `primaryConnectionString` as we will need it later.
+The last command gets the connection string for the eventhubs namespace we just created. Take note of the `primaryConnectionString` as we will need it later. Also, copy the value of the id property from step 2 as {registryResourceId}.
 
 >Note: In this sample, we are using the root key. In a production environment you will want to create a policy with more restricted access.
 
@@ -56,9 +56,11 @@ Since we want to synchronize the device registry, we need to be notified when a 
 
 Similarly, we need to handle changes to the device twin and will we use a route to handle device twin changes.
 
-1. `az eventgrid event-subscription create --name deviceregistration --endpoint {registry eventhub resourceId} --endpoint-type eventhub --resource-id {primary IoT Hub resourceId} --included-event-type Microsoft.Devices.DeviceCreated Microsoft.Devices.DeviceDeleted`
+1. `az eventgrid event-subscription create --name deviceregistration --endpoint {registryResourceId} --endpoint-type eventhub --resource-id {primaryHubResourceId} --included-event-type Microsoft.Devices.DeviceCreated Microsoft.Devices.DeviceDeleted`
 2. `az iot hub update --name {primaryiothubname} --add properties.routing.endpoints.eventHubs name=twin connectionString="{primaryConnectionString};EntityPath=devicetwin"`
 3. `az iot hub update --name {primaryiothubname} --add properties.routing.routes "{\"name\": \"twin\",\"source\": \"TwinChangeEvents\",\"condition\": \"true\",\"endpointNames\": [\"twin\"],\"isEnabled\": \"true\"}"`
+
+>Note: {primaryConnectionString} is the connection string to the EventHubs namespace and not the primary IoT Hub.
 
    
 #### Getting the Source Code
@@ -66,9 +68,9 @@ Similarly, we need to handle changes to the device twin and will we use a route 
 From a command line, clone the repository and install the EventHub bindings.
 
 1. `git clone https://github.com/Mangu/iot-hadr.git`
-2. `cd iot-had`
+2. `cd iot-hadr`
 3. `func extensions install --package Microsoft.Azure.WebJobs.Extensions.EventHubs --version 3.0.0-beta5`
-   
+
 Next we need to configure the solution with the Azure services we created in the steps above. Open local.settings.json in VSCode or any other text editor and replace the the values of the following properties:
 
 1. "myEventHubReadConnectionAppSetting":"{primaryConnectionString}"
