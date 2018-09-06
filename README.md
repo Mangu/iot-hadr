@@ -1,33 +1,33 @@
 # IoT Hub Automatic Cross Region Failover
 
->Note: This is a work in progress. I will remove this notice when it is ready to use. 
+>Note: This is a work in progress. I will remove this notice when it is ready to use.
 
 This sample provides a reference implementation for achieving cross region high availability in IoT Hub as defined in the [IoT Hub high availability and disaster recovery](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-ha-dr) post.
 
 ## Features
 
-This project framework provides the following features:
+This sample provides the following features:
 
-* One way synchronization of the device registry from the primary hub to the secondary hub
-* One way synchronization of device twin properties (reported and desired) from the primary hub to the secondary hub
-* Device routing logic to the secondary hub to activate the failover
+* One way synchronization of the device registry from the primary hub to the secondary hub. This is achieved via an EventGrid subscription to the "device created" and "device deleted" topics"
+* One way synchronization of device twin properties (reported and desired) from the primary hub to the secondary hub. This is achieve via a "TwinChangeEvent" route
+* Device routing logic to the secondary hub to activate the failover. For the sake of simplicity we implement this as an Azure Function API that returns the name of the IoT Hub it should connect to.  
 
 ## Getting Started
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/en/)
-- [Azure Functions Core Tools](https://www.npmjs.com/package/azure-functions-core-tools)
+* [Node.js](https://nodejs.org/en/)
+* [Azure Functions Core Tools](https://www.npmjs.com/package/azure-functions-core-tools)
 
 ### Quickstart
 
-First, we need to setup the Azure services needed in our solution. You will create two instances of IoT Hub (primary and secondary) and two EventHub. One to handle changes to the device registry and one for device twin changes.
+First, we need to provision and configure the Azure services needed in our solution. We will create two instances of IoT Hub (primary and secondary) and two EventHub. One to handle changes to the device registry and one for device twin changes.
 
 While we can use the UI to create these services, for this walkthrough we will be using the Azure Cloud Shell available in the portal.
 
 #### Create IoT Hub instances
 
-Login to the Azure portal and click on the CLI icon on the top bar. Type the following commands to create a new resource group and IoT Hub:
+Login to the Azure portal and click on the CLI icon on the top bar. Type the following commands:
 
 1. `az group create --name {your resource group name} --location westus` 
 2. `az iot hub create --name {primaryiothubname} --resource-group {your resource group name} --sku S1`
@@ -35,11 +35,11 @@ Login to the Azure portal and click on the CLI icon on the top bar. Type the fol
 4. `az iot hub show-connection-string --hub-name {primaryiothubname}`
 5. `az iot hub show-connection-string --hub-name {secondaryiothubname}`
  
-Copy the connection string from steps 4 and 5 as "primaryiothubnameConnection" and "secondaryiothubnameConnection". We will need it later.
+Open any text editor and copy the connection string from steps 4 and 5 as "PrimaryIoTHubConnection" and "SecondaryIoTHubConnection" respectably. We will need it later.
 
 #### Create Event Hubs
 
-The following commands will create a EventHubs namespace and two EventHub; One to capture registry events and one for device twin changes:
+Back on the Cloud Shell,the following commands will create a EventHubs namespace and two EventHub; One to capture registry events and one for device twin changes:
 1. `az eventhubs namespace create --name  {yournamespacename} --resource-group {your resource group name}`
 2. `az eventhubs eventhub create --name registry -namespace-name {yournamespacename } --resource-group  --{your resource group name}`
 3. `az eventhubs eventhub create --name devicetwin -namespace-name {yournamespacename } --resource-group  --{your resource group name}`
@@ -70,9 +70,9 @@ From a command line, clone the repository and install the EventHub bindings.
    
 Next we need to configure the solution with the Azure services we created in the steps above. Open local.settings.json in VSCode or any other text editor and replace the the values of the following properties:
 
-"myEventHubReadConnectionAppSetting":"{primaryConnectionString}",
-"iothub1":"{primaryiothubnameConnection}",
-"iothub2":"{secondaryiothubnameConnection}"
+1. "myEventHubReadConnectionAppSetting":"{primaryConnectionString}"
+2. "iothub1":"{PrimaryIoTHubConnection}"
+3. "iothub2":"{SecondaryIoTHubConnection}"
 
 ## Demo
 
